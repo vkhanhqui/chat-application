@@ -22,6 +22,7 @@ public class ServerForm extends javax.swing.JFrame {
 
     private ServerSocket server;
     private Socket socket;
+    private int countUsers = 0;
 
     private void executeInit() {
         Thread serverStart = new Thread() {
@@ -32,18 +33,33 @@ public class ServerForm extends javax.swing.JFrame {
                     txtaChatBox.setText("server is listening");
                     socket = getServer().accept();
 
-                    Thread read = new ReadingThread(socket, txtaChatBox, rootPane);
-                    read.start();
-
-//                    if (socket.isConnected()) {
-//                        txtaChatBox.append("\nserver is connected");
-//                        DataInputStream dis = new DataInputStream(socket.getInputStream());
-//                        String username = dis.readUTF();
-//                        txtaChatBox.append(username);
-//                    }
+                    if (socket.isConnected()) {
+                        txtaChatBox.append("\nserver is connected");
+                        try {
+                            do {
+                                DataInputStream dis = new DataInputStream(socket.getInputStream());
+                                String get = dis.readUTF();
+                                String username = get.split(" ")[0];
+                                String pwd = get.split(" ")[1];
+                                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                                if (username.equals("1") && pwd.equals("2")) {
+                                    dos.writeBoolean(true);
+                                    dos.flush();
+                                    txtaChatBox.append("\n" + username + " is logging");
+                                    countUsers++;
+                                    break;
+                                } else {
+                                    dos.writeBoolean(false);
+                                }
+                            } while (true);
+                            Thread read = new ReadingThread(socket, txtaChatBox, rootPane);
+                            read.start();
+                        } catch (IOException ex) {
+                            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+                        }
+                    }
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(rootPane, ex.getMessage());
-
                 }
             }
         };
@@ -172,9 +188,14 @@ public class ServerForm extends javax.swing.JFrame {
 
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
-        Thread write = new WritingThread(socket, txtaMessage, rootPane, "Server");
-        write.start();
-        txtaChatBox.append("\nYou: " + txtaMessage.getText());
+        if (countUsers > 0) {
+            Thread write = new WritingThread(socket, txtaMessage, rootPane, "Server");
+            write.start();
+            txtaChatBox.append("\nYou: " + txtaMessage.getText());
+        } else {
+            JOptionPane.showMessageDialog(this, "You must log in");
+        }
+
     }//GEN-LAST:event_btnSendActionPerformed
 
     /**
