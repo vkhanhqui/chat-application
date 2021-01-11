@@ -3,15 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vkhanhqui.detai1;
+package com.detai1;
 
-import com.vkhanhqui.detai1.tools.ReadingThread;
-import com.vkhanhqui.detai1.tools.WritingThread;
+import com.detai1.tools.ReadingThread;
+import com.detai1.tools.WritingThread;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
@@ -23,6 +24,7 @@ public class ServerForm extends javax.swing.JFrame {
     private ServerSocket server;
     private Socket socket;
     private int countUsers = 0;
+    private JFileChooser jfc;
 
     private void executeInit() {
         Thread serverStart = new Thread() {
@@ -92,6 +94,7 @@ public class ServerForm extends javax.swing.JFrame {
         btnSend = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         txtaMessage = new javax.swing.JTextArea();
+        btnFile = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -129,6 +132,13 @@ public class ServerForm extends javax.swing.JFrame {
         txtaMessage.setRows(5);
         jScrollPane3.setViewportView(txtaMessage);
 
+        btnFile.setText("Choose File");
+        btnFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFileActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -142,18 +152,21 @@ public class ServerForm extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane3)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnSend))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(jLabel4)
                                 .addGap(48, 48, 48)
                                 .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(btnListen))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnFile)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jScrollPane3)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnSend)))))))
                 .addContainerGap(23, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -174,7 +187,9 @@ public class ServerForm extends javax.swing.JFrame {
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel5))
                     .addComponent(btnSend))
-                .addGap(0, 37, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnFile)
+                .addGap(0, 22, Short.MAX_VALUE))
         );
 
         pack();
@@ -189,7 +204,7 @@ public class ServerForm extends javax.swing.JFrame {
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
         if (countUsers > 0) {
-            Thread write = new WritingThread(socket, txtaMessage, rootPane, "Server");
+            Thread write = new WritingThread(socket, txtaMessage, rootPane, "Server", jfc.getSelectedFile());
             write.start();
             txtaChatBox.append("\nYou: " + txtaMessage.getText());
         } else {
@@ -197,6 +212,19 @@ public class ServerForm extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_btnSendActionPerformed
+
+    private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
+        // TODO add your handling code here:
+        jfc = new JFileChooser();
+        jfc.showOpenDialog(this);
+        try {
+            if (jfc.getSelectedFile() != null) {
+                txtaMessage.setText(jfc.getSelectedFile().getName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnFileActionPerformed
 
     /**
      * @param args the command line arguments
@@ -242,6 +270,7 @@ public class ServerForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnFile;
     private javax.swing.JButton btnListen;
     private javax.swing.JButton btnSend;
     private javax.swing.JLabel jLabel3;

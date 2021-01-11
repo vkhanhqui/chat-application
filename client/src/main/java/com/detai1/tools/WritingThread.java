@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vkhanhqui.detai1.tools;
+package com.detai1.tools;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
@@ -22,18 +24,23 @@ public class WritingThread extends Thread {
     private JTextArea txtaMessage;
     private JRootPane rootPane;
     private String name;
+    private File file;
 
-    public WritingThread(Socket socket, JTextArea txtaMessage, JRootPane rootPane, String name) {
+    public WritingThread(Socket socket, JTextArea txtaMessage, JRootPane rootPane, String name, File file) {
         this.socket = socket;
         this.txtaMessage = txtaMessage;
         this.rootPane = rootPane;
         this.name = name;
+        this.file = file;
     }
 
     @Override
     public void run() {
         try {
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.writeObject(file);
+            oos.flush();
             String sms = txtaMessage.getText();
             dos.writeUTF("\n" + name + ": " + sms);
             dos.flush();

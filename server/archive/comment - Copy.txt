@@ -1,0 +1,14 @@
+{
+    "userId": "314f188e-4e57-11eb-ae93-0242ac130002",
+    "content": "content",
+    "articleId": "3b3f3ffd-a706-4d08-9f54-db1b312b753a",
+    "parentId": null
+}
+
+
+
+{
+    "title": "",
+    "description": "",
+    "content": ""
+}

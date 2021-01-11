@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vkhanhqui.detai1;
+package com.detai1;
 
-import com.vkhanhqui.detai1.tools.ReadingThread;
-import com.vkhanhqui.detai1.tools.WritingThread;
+import com.detai1.tools.WritingThread;
 import java.net.Socket;
+import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
 
 /**
@@ -18,6 +18,7 @@ public class ClientForm extends javax.swing.JFrame {
 
     private Socket client;
     private String username;
+    private JFileChooser jfc;
 
     /**
      * Creates new form ClientForm
@@ -43,6 +44,7 @@ public class ClientForm extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         txtaMessage = new javax.swing.JTextArea();
         btnSend = new javax.swing.JButton();
+        btnFile = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -69,6 +71,13 @@ public class ClientForm extends javax.swing.JFrame {
             }
         });
 
+        btnFile.setText("Choose File");
+        btnFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFileActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -82,12 +91,15 @@ public class ClientForm extends javax.swing.JFrame {
                         .addGap(31, 31, 31)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(34, 34, 34)
-                                .addComponent(btnSend)))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnFile)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(34, 34, 34)
+                                        .addComponent(btnSend)))))))
                 .addGap(35, 35, 35))
         );
         layout.setVerticalGroup(
@@ -106,7 +118,9 @@ public class ClientForm extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel4)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(63, 63, 63))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnFile)
+                .addGap(19, 19, 19))
         );
 
         pack();
@@ -114,10 +128,23 @@ public class ClientForm extends javax.swing.JFrame {
 
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
-        Thread write = new WritingThread(client, txtaMessage, rootPane, username);
+        Thread write = new WritingThread(client, txtaMessage, rootPane, username, jfc.getSelectedFile());
         write.start();
         txtaChatBox.append("\nYou: " + txtaMessage.getText());
     }//GEN-LAST:event_btnSendActionPerformed
+
+    private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
+        // TODO add your handling code here:
+        jfc = new JFileChooser();
+        jfc.showOpenDialog(this);
+        try {
+            if (jfc.getSelectedFile() != null) {
+                txtaMessage.setText(jfc.getSelectedFile().getName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnFileActionPerformed
 
     /**
      * @param args the command line arguments
@@ -164,6 +191,7 @@ public class ClientForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnFile;
     private javax.swing.JButton btnSend;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
@@ -188,8 +216,8 @@ public class ClientForm extends javax.swing.JFrame {
     public void setUsername(String username) {
         this.username = username;
     }
-    
-    public JTextArea getTxtaChatBox(){
+
+    public JTextArea getTxtaChatBox() {
         return txtaChatBox;
     }
 }
