@@ -47,7 +47,6 @@ public class LoginForm extends javax.swing.JFrame {
         lbPwd = new javax.swing.JLabel();
         btnLogin = new javax.swing.JButton();
         txtUsername = new javax.swing.JTextField();
-        txtPwd = new javax.swing.JTextField();
         lbLogin = new javax.swing.JLabel();
         lbHost = new javax.swing.JLabel();
         txtHost = new javax.swing.JTextField();
@@ -55,6 +54,7 @@ public class LoginForm extends javax.swing.JFrame {
         txtPort = new javax.swing.JTextField();
         btnConn = new javax.swing.JButton();
         lbConn = new javax.swing.JLabel();
+        txtPwd = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -105,35 +105,37 @@ public class LoginForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lbHost)
+                        .addGap(27, 27, 27)
+                        .addComponent(txtHost, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
+                        .addComponent(lbPort)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(47, 47, 47))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(133, 133, 133)
-                                .addComponent(lbLogin)
-                                .addGap(18, 18, 18)
-                                .addComponent(lbConn))
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(lbPwd)
                                     .addComponent(lbUsername))
-                                .addGap(47, 47, 47)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(txtPwd, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(btnLogin)
-                                        .addGap(63, 63, 63))
-                                    .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(lbHost)
-                        .addGap(27, 27, 27)
-                        .addComponent(txtHost, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbPort)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(47, 47, 47)))
+                                        .addGap(103, 103, 103)
+                                        .addComponent(btnLogin))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(40, 40, 40)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txtPwd, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(133, 133, 133)
+                                .addComponent(lbLogin)
+                                .addGap(18, 18, 18)
+                                .addComponent(lbConn)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(btnConn)
                 .addGap(35, 35, 35))
         );
@@ -151,15 +153,15 @@ public class LoginForm extends javax.swing.JFrame {
                     .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lbPort)
                     .addComponent(btnConn))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbUsername))
-                .addGap(40, 40, 40)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbUsername)
+                    .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(38, 38, 38)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lbPwd)
                     .addComponent(txtPwd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(31, 31, 31)
+                .addGap(32, 32, 32)
                 .addComponent(btnLogin)
                 .addGap(34, 34, 34))
         );
@@ -176,7 +178,7 @@ public class LoginForm extends javax.swing.JFrame {
         boolean isLogged = false;
         try {
             DataOutputStream dos = new DataOutputStream(client.getOutputStream());
-            dos.writeUTF(txtUsername.getText() + " " + txtPwd.getText());
+            dos.writeUTF(txtUsername.getText() + " " + new String(txtPwd.getPassword()));
             DataInputStream dis = new DataInputStream(client.getInputStream());
             isLogged = dis.readBoolean();
             dos.flush();
@@ -186,7 +188,7 @@ public class LoginForm extends javax.swing.JFrame {
                 cf.setClient(client);
                 cf.setUsername(txtUsername.getText());
                 cf.setVisible(true);
-                Thread read = new ReadingThread(client, cf.getTxtaChatBox(), rootPane);
+                Thread read = new ReadingThread(client, cf.getSd(), rootPane);
                 read.start();
                 JOptionPane.showMessageDialog(rootPane, "dang nhap thanh cong");
             } else {
@@ -272,7 +274,7 @@ public class LoginForm extends javax.swing.JFrame {
     private javax.swing.JLabel lbUsername;
     private javax.swing.JTextField txtHost;
     private javax.swing.JTextField txtPort;
-    private javax.swing.JTextField txtPwd;
+    private javax.swing.JPasswordField txtPwd;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 

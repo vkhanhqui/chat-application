@@ -37,10 +37,12 @@ public class WritingThread extends Thread {
     @Override
     public void run() {
         try {
+            if (file != null) {
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                oos.writeObject(file);
+                oos.flush();
+            }
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-            oos.writeObject(file);
-            oos.flush();
             String sms = txtaMessage.getText();
             dos.writeUTF("\n" + name + ": " + sms);
             dos.flush();

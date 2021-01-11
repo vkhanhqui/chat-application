@@ -14,6 +14,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
 
 /**
  *
@@ -23,8 +25,9 @@ public class ServerForm extends javax.swing.JFrame {
 
     private ServerSocket server;
     private Socket socket;
-    private int countUsers = 0;
+    private int countUsers = 1;
     private JFileChooser jfc;
+    private StyledDocument sd;
 
     private void executeInit() {
         Thread serverStart = new Thread() {
@@ -32,12 +35,12 @@ public class ServerForm extends javax.swing.JFrame {
                 try {
 //            int port = Integer.parseInt(txtPort.getText());
                     setServer(new ServerSocket(9999));
-                    txtaChatBox.setText("server is listening");
+                    txtpChatBox.setText("server is listening");
+                    sd = txtpChatBox.getStyledDocument();
                     socket = getServer().accept();
-
                     if (socket.isConnected()) {
-                        txtaChatBox.append("\nserver is connected");
                         try {
+                            sd.insertString(sd.getLength(), "\nserver is connected", null);
                             do {
                                 DataInputStream dis = new DataInputStream(socket.getInputStream());
                                 String get = dis.readUTF();
@@ -47,16 +50,17 @@ public class ServerForm extends javax.swing.JFrame {
                                 if (username.equals("1") && pwd.equals("2")) {
                                     dos.writeBoolean(true);
                                     dos.flush();
-                                    txtaChatBox.append("\n" + username + " is logging");
+
+                                    sd.insertString(sd.getLength(), "\n" + username + " is logging", null);
                                     countUsers++;
                                     break;
                                 } else {
                                     dos.writeBoolean(false);
                                 }
                             } while (true);
-                            Thread read = new ReadingThread(socket, txtaChatBox, rootPane);
+                            Thread read = new ReadingThread(socket, sd, rootPane);
                             read.start();
-                        } catch (IOException ex) {
+                        } catch (BadLocationException ex) {
                             JOptionPane.showMessageDialog(rootPane, ex.getMessage());
                         }
                     }
@@ -88,13 +92,13 @@ public class ServerForm extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         txtPort = new javax.swing.JTextField();
         btnListen = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        txtaChatBox = new javax.swing.JTextArea();
         jLabel5 = new javax.swing.JLabel();
         btnSend = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         txtaMessage = new javax.swing.JTextArea();
         btnFile = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtpChatBox = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -111,11 +115,6 @@ public class ServerForm extends javax.swing.JFrame {
                 btnListenActionPerformed(evt);
             }
         });
-
-        txtaChatBox.setEditable(false);
-        txtaChatBox.setColumns(20);
-        txtaChatBox.setRows(5);
-        jScrollPane2.setViewportView(txtaChatBox);
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel5.setText("Message");
@@ -139,6 +138,9 @@ public class ServerForm extends javax.swing.JFrame {
             }
         });
 
+        txtpChatBox.setEditable(false);
+        jScrollPane1.setViewportView(txtpChatBox);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -157,16 +159,18 @@ public class ServerForm extends javax.swing.JFrame {
                                 .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(btnListen))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(jLabel5)
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(btnFile)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jScrollPane3)
+                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)
                                         .addGap(18, 18, 18)
-                                        .addComponent(btnSend)))))))
+                                        .addComponent(btnSend))))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(23, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -179,9 +183,9 @@ public class ServerForm extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnListen))
-                .addGap(28, 28, 28)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(42, 42, 42)
+                .addGap(17, 17, 17)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -189,7 +193,7 @@ public class ServerForm extends javax.swing.JFrame {
                     .addComponent(btnSend))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnFile)
-                .addGap(0, 22, Short.MAX_VALUE))
+                .addGap(0, 17, Short.MAX_VALUE))
         );
 
         pack();
@@ -203,12 +207,17 @@ public class ServerForm extends javax.swing.JFrame {
 
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
-        if (countUsers > 0) {
+        if (countUsers > 0 && txtaMessage.getText() != null) {
             Thread write = new WritingThread(socket, txtaMessage, rootPane, "Server", jfc.getSelectedFile());
             write.start();
-            txtaChatBox.append("\nYou: " + txtaMessage.getText());
+            jfc.cancelSelection();
+            try {
+                sd.insertString(sd.getLength(), "\nYou: " + txtaMessage.getText(), null);
+            } catch (BadLocationException ex) {
+                JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+            }
         } else {
-            JOptionPane.showMessageDialog(this, "You must log in");
+            JOptionPane.showMessageDialog(this, "Text could not be null");
         }
 
     }//GEN-LAST:event_btnSendActionPerformed
@@ -217,12 +226,8 @@ public class ServerForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         jfc = new JFileChooser();
         jfc.showOpenDialog(this);
-        try {
-            if (jfc.getSelectedFile() != null) {
-                txtaMessage.setText(jfc.getSelectedFile().getName());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (jfc.getSelectedFile() != null) {
+            txtaMessage.setText(jfc.getSelectedFile().getName());
         }
     }//GEN-LAST:event_btnFileActionPerformed
 
@@ -276,11 +281,11 @@ public class ServerForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField txtPort;
-    private javax.swing.JTextArea txtaChatBox;
     private javax.swing.JTextArea txtaMessage;
+    private javax.swing.JTextPane txtpChatBox;
     // End of variables declaration//GEN-END:variables
 
     /**

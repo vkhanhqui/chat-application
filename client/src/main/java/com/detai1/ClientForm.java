@@ -8,7 +8,9 @@ package com.detai1;
 import com.detai1.tools.WritingThread;
 import java.net.Socket;
 import javax.swing.JFileChooser;
-import javax.swing.JTextArea;
+import javax.swing.JOptionPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
 
 /**
  *
@@ -19,13 +21,14 @@ public class ClientForm extends javax.swing.JFrame {
     private Socket client;
     private String username;
     private JFileChooser jfc;
+    private StyledDocument sd;
 
     /**
      * Creates new form ClientForm
      */
     public ClientForm() {
         initComponents();
-        txtaChatBox.setText("You are logging");
+        sd = txtpChatBox.getStyledDocument();
     }
 
     /**
@@ -38,23 +41,18 @@ public class ClientForm extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        txtaChatBox = new javax.swing.JTextArea();
         jLabel4 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         txtaMessage = new javax.swing.JTextArea();
         btnSend = new javax.swing.JButton();
         btnFile = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        txtpChatBox = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel1.setText("Chat Client");
-
-        txtaChatBox.setEditable(false);
-        txtaChatBox.setColumns(20);
-        txtaChatBox.setRows(5);
-        jScrollPane1.setViewportView(txtaChatBox);
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel4.setText("Message");
@@ -78,6 +76,9 @@ public class ClientForm extends javax.swing.JFrame {
             }
         });
 
+        txtpChatBox.setEditable(false);
+        jScrollPane3.setViewportView(txtpChatBox);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -90,34 +91,32 @@ public class ClientForm extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(31, 31, 31)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(jScrollPane3)
+                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnFile)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btnFile)
+                                        .addGap(99, 99, 99))
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(34, 34, 34)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
                                         .addComponent(btnSend)))))))
                 .addGap(35, 35, 35))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnSend))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(jLabel1)
-                        .addGap(47, 47, 47)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel4)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(26, 26, 26)
+                .addComponent(jLabel1)
+                .addGap(28, 28, 28)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnSend, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnFile)
                 .addGap(19, 19, 19))
@@ -128,21 +127,26 @@ public class ClientForm extends javax.swing.JFrame {
 
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
-        Thread write = new WritingThread(client, txtaMessage, rootPane, username, jfc.getSelectedFile());
-        write.start();
-        txtaChatBox.append("\nYou: " + txtaMessage.getText());
+        if (txtaMessage.getText() != null) {
+            Thread write = new WritingThread(client, txtaMessage, rootPane, username, jfc.getSelectedFile());
+            write.start();
+            jfc.cancelSelection();
+            try {
+                sd.insertString(sd.getLength(), "\nYou: " + txtaMessage.getText(), null);
+            } catch (BadLocationException ex) {
+                JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Text could not be null");
+        }
     }//GEN-LAST:event_btnSendActionPerformed
 
     private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
         // TODO add your handling code here:
         jfc = new JFileChooser();
         jfc.showOpenDialog(this);
-        try {
-            if (jfc.getSelectedFile() != null) {
-                txtaMessage.setText(jfc.getSelectedFile().getName());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (jfc.getSelectedFile() != null) {
+            txtaMessage.setText(jfc.getSelectedFile().getName());
         }
     }//GEN-LAST:event_btnFileActionPerformed
 
@@ -195,10 +199,10 @@ public class ClientForm extends javax.swing.JFrame {
     private javax.swing.JButton btnSend;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea txtaChatBox;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea txtaMessage;
+    private javax.swing.JTextPane txtpChatBox;
     // End of variables declaration//GEN-END:variables
 
     public Socket getClient() {
@@ -217,7 +221,7 @@ public class ClientForm extends javax.swing.JFrame {
         this.username = username;
     }
 
-    public JTextArea getTxtaChatBox() {
-        return txtaChatBox;
+    public StyledDocument getSd() {
+        return sd;
     }
 }
