@@ -6,6 +6,7 @@
 package com.detai1;
 
 import com.detai1.tools.WritingThread;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -22,13 +23,19 @@ public class ClientForm extends javax.swing.JFrame {
     private String username;
     private JFileChooser jfc;
     private StyledDocument sd;
+    private ObjectOutputStream oos;
 
     /**
      * Creates new form ClientForm
      */
     public ClientForm() {
         initComponents();
+        formWhenInit();
+    }
+
+    private void formWhenInit() {
         sd = txtpChatBox.getStyledDocument();
+        jfc = new JFileChooser();
     }
 
     /**
@@ -128,7 +135,7 @@ public class ClientForm extends javax.swing.JFrame {
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
         if (txtaMessage.getText() != null) {
-            Thread write = new WritingThread(client, txtaMessage, rootPane, username, jfc.getSelectedFile());
+            Thread write = new WritingThread(client, txtaMessage, rootPane, username, jfc.getSelectedFile(), oos);
             write.start();
             jfc.cancelSelection();
             try {
@@ -143,7 +150,6 @@ public class ClientForm extends javax.swing.JFrame {
 
     private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
         // TODO add your handling code here:
-        jfc = new JFileChooser();
         jfc.showOpenDialog(this);
         if (jfc.getSelectedFile() != null) {
             txtaMessage.setText(jfc.getSelectedFile().getName());
@@ -223,5 +229,13 @@ public class ClientForm extends javax.swing.JFrame {
 
     public StyledDocument getSd() {
         return sd;
+    }
+
+    public ObjectOutputStream getOOS() {
+        return oos;
+    }
+
+    public void setObjectOutputStream(ObjectOutputStream oos) {
+        this.oos = oos;
     }
 }

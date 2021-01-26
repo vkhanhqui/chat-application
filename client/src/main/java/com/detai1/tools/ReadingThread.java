@@ -5,7 +5,6 @@
  */
 package com.detai1.tools;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -29,28 +28,30 @@ public class ReadingThread extends Thread {
     private StyledDocument sd;
     private JRootPane rootPane;
     private final Path rootLocation;
+    private ObjectInputStream ois;
 
-    public ReadingThread(Socket socket, StyledDocument sd, JRootPane rootPane) {
+    public ReadingThread(Socket socket, StyledDocument sd, JRootPane rootPane, ObjectInputStream ois) {
         this.socket = socket;
         this.sd = sd;
         this.rootPane = rootPane;
         this.rootLocation = Paths.get("archive");
+        this.ois = ois;
     }
 
     @Override
     public void run() {
         try {
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
             while (true) {
-                File receive = (File) ois.readObject();
-                Files.copy(receive.toPath(),
-                        rootLocation.resolve(Paths.get(receive.getName()))
-                                .normalize()
-                                .toAbsolutePath(),
-                        StandardCopyOption.REPLACE_EXISTING);
-                String sms = dis.readUTF();
-                sd.insertString(sd.getLength(), sms, null);
+                AttachmentDTO attachmentDTO = (AttachmentDTO) ois.readObject();
+                sd.insertString(sd.getLength(), attachmentDTO.getMessage(), null);
+                if (attachmentDTO.getFile() != null) {
+                    File receive = attachmentDTO.getFile();
+                    Files.copy(receive.toPath(),
+                            rootLocation.resolve(Paths.get(receive.getName()))
+                                    .normalize()
+                                    .toAbsolutePath(),
+                            StandardCopyOption.REPLACE_EXISTING);
+                }
             }
         } catch (IOException | ClassNotFoundException | BadLocationException ex) {
             JOptionPane.showMessageDialog(rootPane, ex.getMessage());

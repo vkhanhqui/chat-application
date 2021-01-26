@@ -10,6 +10,8 @@ import com.detai1.tools.WritingThread;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import javax.swing.JFileChooser;
@@ -28,8 +30,10 @@ public class ServerForm extends javax.swing.JFrame {
     private int countUsers = 1;
     private JFileChooser jfc;
     private StyledDocument sd;
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
 
-    private void executeInit() {
+    private void startingServer() {
         Thread serverStart = new Thread() {
             public void run() {
                 try {
@@ -39,30 +43,7 @@ public class ServerForm extends javax.swing.JFrame {
                     sd = txtpChatBox.getStyledDocument();
                     socket = getServer().accept();
                     if (socket.isConnected()) {
-                        try {
-                            sd.insertString(sd.getLength(), "\nserver is connected", null);
-                            do {
-                                DataInputStream dis = new DataInputStream(socket.getInputStream());
-                                String get = dis.readUTF();
-                                String username = get.split(" ")[0];
-                                String pwd = get.split(" ")[1];
-                                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                                if (username.equals("1") && pwd.equals("2")) {
-                                    dos.writeBoolean(true);
-                                    dos.flush();
-
-                                    sd.insertString(sd.getLength(), "\n" + username + " is logging", null);
-                                    countUsers++;
-                                    break;
-                                } else {
-                                    dos.writeBoolean(false);
-                                }
-                            } while (true);
-                            Thread read = new ReadingThread(socket, sd, rootPane);
-                            read.start();
-                        } catch (BadLocationException ex) {
-                            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
-                        }
+                        checkUserWhenSocketIsConnected();
                     }
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(rootPane, ex.getMessage());
@@ -72,11 +53,43 @@ public class ServerForm extends javax.swing.JFrame {
         serverStart.start();
     }
 
+    private void checkUserWhenSocketIsConnected() {
+        try {
+            sd.insertString(sd.getLength(), "\nserver is connected", null);
+            do {
+                ois = new ObjectInputStream(socket.getInputStream());
+                String get = ois.readUTF();
+                String username = get.split(" ")[0];
+                String pwd = get.split(" ")[1];
+                oos = new ObjectOutputStream(socket.getOutputStream());
+                if (username.equals("1") && pwd.equals("2")) {
+                    oos.writeBoolean(true);
+                    sd.insertString(sd.getLength(), "\n" + username + " is logging", null);
+                    countUsers++;
+                    oos.flush();
+                    break;
+                } else {
+                    oos.writeBoolean(false);
+                    oos.flush();
+                }
+            } while (true);
+            Thread read = new ReadingThread(socket, sd, rootPane, ois);
+            read.start();
+        } catch (IOException | BadLocationException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        }
+    }
+
     /**
      * Creates new form ServerForm
      */
     public ServerForm() {
         initComponents();
+        formWhenInit();
+    }
+
+    private void formWhenInit() {
+        jfc = new JFileChooser();
     }
 
     /**
@@ -201,14 +214,13 @@ public class ServerForm extends javax.swing.JFrame {
 
     private void btnListenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListenActionPerformed
         // TODO add your handling code here:
-        executeInit();
-
+        startingServer();
     }//GEN-LAST:event_btnListenActionPerformed
 
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
         if (countUsers > 0 && txtaMessage.getText() != null) {
-            Thread write = new WritingThread(socket, txtaMessage, rootPane, "Server", jfc.getSelectedFile());
+            Thread write = new WritingThread(socket, txtaMessage, rootPane, "Server", jfc.getSelectedFile(), oos);
             write.start();
             jfc.cancelSelection();
             try {
@@ -224,7 +236,6 @@ public class ServerForm extends javax.swing.JFrame {
 
     private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
         // TODO add your handling code here:
-        jfc = new JFileChooser();
         jfc.showOpenDialog(this);
         if (jfc.getSelectedFile() != null) {
             txtaMessage.setText(jfc.getSelectedFile().getName());

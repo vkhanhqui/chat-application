@@ -6,9 +6,9 @@
 package com.detai1;
 
 import com.detai1.tools.ReadingThread;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import javax.swing.JOptionPane;
@@ -20,18 +20,15 @@ import javax.swing.JOptionPane;
 public class LoginForm extends javax.swing.JFrame {
 
     private Socket client;
+    private ObjectOutputStream oos;
+    private ObjectInputStream ois;
 
     /**
      * Creates new form LoginForm
      */
     public LoginForm() {
         initComponents();
-        btnLogin.setVisible(false);
-        txtUsername.setVisible(false);
-        txtPwd.setVisible(false);
-        lbUsername.setVisible(false);
-        lbPwd.setVisible(false);
-        lbLogin.setVisible(false);
+        formWhenInit();
     }
 
     /**
@@ -177,23 +174,25 @@ public class LoginForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         boolean isLogged = false;
         try {
-            DataOutputStream dos = new DataOutputStream(client.getOutputStream());
-            dos.writeUTF(txtUsername.getText() + " " + new String(txtPwd.getPassword()));
-            DataInputStream dis = new DataInputStream(client.getInputStream());
-            isLogged = dis.readBoolean();
-            dos.flush();
+            oos = new ObjectOutputStream(client.getOutputStream());
+            String attachment = txtUsername.getText() + " " + new String(txtPwd.getPassword());
+            oos.writeUTF(attachment);
+            oos.flush();
+            ois = new ObjectInputStream(client.getInputStream());
+            isLogged = ois.readBoolean();
             if (isLogged == true) {
                 this.setVisible(false);
                 ClientForm cf = new ClientForm();
                 cf.setClient(client);
                 cf.setUsername(txtUsername.getText());
                 cf.setVisible(true);
-                Thread read = new ReadingThread(client, cf.getSd(), rootPane);
+                cf.setObjectOutputStream(oos);
+                Thread read = new ReadingThread(client, cf.getSd(), rootPane, ois);
                 read.start();
-                JOptionPane.showMessageDialog(rootPane, "dang nhap thanh cong");
             } else {
                 JOptionPane.showMessageDialog(rootPane, "tai khoan hoac mat khau sai");
             }
+
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(rootPane, ex.getMessage());
         }
@@ -206,19 +205,7 @@ public class LoginForm extends javax.swing.JFrame {
             //            int port = Integer.parseInt(txtPort.getText());
             client = new Socket(InetAddress.getLocalHost(), 9999);
             if (client.isConnected()) {
-                btnLogin.setVisible(true);
-                txtUsername.setVisible(true);
-                txtPwd.setVisible(true);
-                lbUsername.setVisible(true);
-                lbPwd.setVisible(true);
-                lbLogin.setVisible(true);
-                btnConn.setVisible(false);
-                lbConn.setVisible(false);
-                lbHost.setVisible(false);
-                lbPort.setVisible(false);
-                txtHost.setVisible(false);
-                txtPort.setVisible(false);
-                JOptionPane.showMessageDialog(this, "connected");
+                formWhenConnected();
             } else {
                 JOptionPane.showMessageDialog(this, "could not connect");
             }
@@ -227,6 +214,30 @@ public class LoginForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }
     }//GEN-LAST:event_btnConnActionPerformed
+
+    private void formWhenInit() {
+        btnLogin.setVisible(false);
+        txtUsername.setVisible(false);
+        txtPwd.setVisible(false);
+        lbUsername.setVisible(false);
+        lbPwd.setVisible(false);
+        lbLogin.setVisible(false);
+    }
+
+    private void formWhenConnected() {
+        btnLogin.setVisible(true);
+        txtUsername.setVisible(true);
+        txtPwd.setVisible(true);
+        lbUsername.setVisible(true);
+        lbPwd.setVisible(true);
+        lbLogin.setVisible(true);
+        btnConn.setVisible(false);
+        lbConn.setVisible(false);
+        lbHost.setVisible(false);
+        lbPort.setVisible(false);
+        txtHost.setVisible(false);
+        txtPort.setVisible(false);
+    }
 
     /**
      * @param args the command line arguments
