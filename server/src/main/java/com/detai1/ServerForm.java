@@ -5,15 +5,15 @@
  */
 package com.detai1;
 
-import com.detai1.tools.ReadingThread;
-import com.detai1.tools.WritingThread;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import com.detai1.utils.UserConnection;
+import com.detai1.utils.ReadingThread;
+import com.detai1.utils.WritingThread;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedHashSet;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
@@ -26,24 +26,22 @@ import javax.swing.text.StyledDocument;
 public class ServerForm extends javax.swing.JFrame {
 
     private ServerSocket server;
-    private Socket socket;
-    private int countUsers = 1;
-    private JFileChooser jfc;
-    private StyledDocument sd;
-    private ObjectInputStream ois;
-    private ObjectOutputStream oos;
+    private LinkedHashSet<UserConnection> userConnections;
+    private JFileChooser jFileChooser;
+    private StyledDocument styledDocument;
 
     private void startingServer() {
         Thread serverStart = new Thread() {
             public void run() {
                 try {
-//            int port = Integer.parseInt(txtPort.getText());
-                    setServer(new ServerSocket(9999));
-                    txtpChatBox.setText("server is listening");
-                    sd = txtpChatBox.getStyledDocument();
-                    socket = getServer().accept();
-                    if (socket.isConnected()) {
-                        checkUserWhenSocketIsConnected();
+                    while (true) {
+                        Socket socket = server.accept();
+                        if (socket.isConnected()) {
+                            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                            UserConnection userConnection = new UserConnection(socket, ois, oos, "");
+                            checkUserWhenSocketIsConnected(userConnection);
+                        }
                     }
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(rootPane, ex.getMessage());
@@ -53,19 +51,21 @@ public class ServerForm extends javax.swing.JFrame {
         serverStart.start();
     }
 
-    private void checkUserWhenSocketIsConnected() {
+    private void checkUserWhenSocketIsConnected(UserConnection userConnection) {
         try {
-            sd.insertString(sd.getLength(), "\nserver is connected", null);
+            ObjectInputStream ois = userConnection.getObjectInputStream();
+            ObjectOutputStream oos = userConnection.getObjectOutputStream();
             do {
-                ois = new ObjectInputStream(socket.getInputStream());
                 String get = ois.readUTF();
                 String username = get.split(" ")[0];
                 String pwd = get.split(" ")[1];
-                oos = new ObjectOutputStream(socket.getOutputStream());
-                if (username.equals("1") && pwd.equals("2")) {
+                //username.equals("1") && 
+                if (pwd.equals("2")) {
                     oos.writeBoolean(true);
-                    sd.insertString(sd.getLength(), "\n" + username + " is logging", null);
-                    countUsers++;
+                    String status = "\n" + username + " is logging";
+                    styledDocument.insertString(styledDocument.getLength(), status, null);
+                    userConnection.setUsername(username);
+                    userConnections.add(userConnection);
                     oos.flush();
                     break;
                 } else {
@@ -73,11 +73,12 @@ public class ServerForm extends javax.swing.JFrame {
                     oos.flush();
                 }
             } while (true);
-            Thread read = new ReadingThread(socket, sd, rootPane, ois);
+            Thread read = new ReadingThread(styledDocument, rootPane, userConnection, userConnections);
             read.start();
         } catch (IOException | BadLocationException ex) {
             JOptionPane.showMessageDialog(rootPane, ex.getMessage());
         }
+
     }
 
     /**
@@ -89,7 +90,14 @@ public class ServerForm extends javax.swing.JFrame {
     }
 
     private void formWhenInit() {
-        jfc = new JFileChooser();
+        try {
+            jFileChooser = new JFileChooser();
+            userConnections = new LinkedHashSet<>();
+            server = new ServerSocket(9999);
+            styledDocument = txtpChatBox.getStyledDocument();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        }
     }
 
     /**
@@ -214,17 +222,23 @@ public class ServerForm extends javax.swing.JFrame {
 
     private void btnListenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListenActionPerformed
         // TODO add your handling code here:
+        txtpChatBox.setText("server is listening");
         startingServer();
     }//GEN-LAST:event_btnListenActionPerformed
 
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
-        if (countUsers > 0 && txtaMessage.getText() != null) {
-            Thread write = new WritingThread(socket, txtaMessage, rootPane, "Server", jfc.getSelectedFile(), oos);
-            write.start();
-            jfc.cancelSelection();
+        if (userConnections.size() > 0 && txtaMessage.getText() != null) {
+            for (UserConnection userConnection : userConnections) {
+                ObjectOutputStream oos = userConnection.getObjectOutputStream();
+                Thread write = new WritingThread(txtaMessage, "Server", jFileChooser.getSelectedFile(), oos);
+                write.start();
+
+            }
+            jFileChooser.cancelSelection();
             try {
-                sd.insertString(sd.getLength(), "\nYou: " + txtaMessage.getText(), null);
+                styledDocument.insertString(styledDocument.getLength(),
+                        "\nYou: " + txtaMessage.getText(), null);
             } catch (BadLocationException ex) {
                 JOptionPane.showMessageDialog(rootPane, ex.getMessage());
             }
@@ -236,9 +250,9 @@ public class ServerForm extends javax.swing.JFrame {
 
     private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
         // TODO add your handling code here:
-        jfc.showOpenDialog(this);
-        if (jfc.getSelectedFile() != null) {
-            txtaMessage.setText(jfc.getSelectedFile().getName());
+        jFileChooser.showOpenDialog(this);
+        if (jFileChooser.getSelectedFile() != null) {
+            txtaMessage.setText(jFileChooser.getSelectedFile().getName());
         }
     }//GEN-LAST:event_btnFileActionPerformed
 

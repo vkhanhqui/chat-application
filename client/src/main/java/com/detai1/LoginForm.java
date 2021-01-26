@@ -5,7 +5,8 @@
  */
 package com.detai1;
 
-import com.detai1.tools.ReadingThread;
+import com.detai1.utils.ReadingThread;
+import com.detai1.utils.UserConnection;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,9 +20,7 @@ import javax.swing.JOptionPane;
  */
 public class LoginForm extends javax.swing.JFrame {
 
-    private Socket client;
-    private ObjectOutputStream oos;
-    private ObjectInputStream ois;
+    private UserConnection userConnection;
 
     /**
      * Creates new form LoginForm
@@ -174,20 +173,23 @@ public class LoginForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         boolean isLogged = false;
         try {
-            oos = new ObjectOutputStream(client.getOutputStream());
+            Socket socket = userConnection.getSocket();
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
             String attachment = txtUsername.getText() + " " + new String(txtPwd.getPassword());
             oos.writeUTF(attachment);
             oos.flush();
-            ois = new ObjectInputStream(client.getInputStream());
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             isLogged = ois.readBoolean();
             if (isLogged == true) {
+                userConnection.setObjectInputStream(ois);
+                userConnection.setObjectOutputStream(oos);
+                userConnection.setUsername(txtUsername.getText());
                 this.setVisible(false);
-                ClientForm cf = new ClientForm();
-                cf.setClient(client);
-                cf.setUsername(txtUsername.getText());
-                cf.setVisible(true);
-                cf.setObjectOutputStream(oos);
-                Thread read = new ReadingThread(client, cf.getSd(), rootPane, ois);
+                ClientForm clientForm = new ClientForm();
+                clientForm.setVisible(true);
+                clientForm.setUserConnection(userConnection);
+                Thread read = new ReadingThread(clientForm.getStyledDocument(), rootPane,
+                        userConnection);
                 read.start();
             } else {
                 JOptionPane.showMessageDialog(rootPane, "tai khoan hoac mat khau sai");
@@ -202,20 +204,20 @@ public class LoginForm extends javax.swing.JFrame {
     private void btnConnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnActionPerformed
         // TODO add your handling code here:
         try {
-            //            int port = Integer.parseInt(txtPort.getText());
-            client = new Socket(InetAddress.getLocalHost(), 9999);
-            if (client.isConnected()) {
+            Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
+            if (socket.isConnected()) {
+                userConnection.setSocket(socket);
                 formWhenConnected();
             } else {
-                JOptionPane.showMessageDialog(this, "could not connect");
+                JOptionPane.showMessageDialog(rootPane, "could not connect");
             }
-
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage());
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
         }
     }//GEN-LAST:event_btnConnActionPerformed
 
     private void formWhenInit() {
+        userConnection = new UserConnection();
         btnLogin.setVisible(false);
         txtUsername.setVisible(false);
         txtPwd.setVisible(false);
@@ -253,16 +255,24 @@ public class LoginForm extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(LoginForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(LoginForm.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(LoginForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(LoginForm.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(LoginForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(LoginForm.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(LoginForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(LoginForm.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -289,11 +299,4 @@ public class LoginForm extends javax.swing.JFrame {
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 
-    public Socket getSocket() {
-        return client;
-    }
-
-    public void setSocket(Socket socket) {
-        client = socket;
-    }
 }

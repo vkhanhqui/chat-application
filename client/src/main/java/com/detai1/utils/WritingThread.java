@@ -3,14 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.detai1.tools;
+package com.detai1.utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 import javax.swing.JOptionPane;
-import javax.swing.JRootPane;
 import javax.swing.JTextArea;
 
 /**
@@ -19,29 +17,23 @@ import javax.swing.JTextArea;
  */
 public class WritingThread extends Thread {
 
-    private Socket socket;
     private JTextArea txtaMessage;
-    private JRootPane rootPane;
-    private String sender;
     private File file;
-    private ObjectOutputStream oos;
+    private UserConnection userConnection;
 
-    public WritingThread(Socket socket, JTextArea txtaMessage, JRootPane rootPane, String sender, File file, ObjectOutputStream oos) {
-        this.socket = socket;
+    public WritingThread(JTextArea txtaMessage, File file, UserConnection userConnection) {
         this.txtaMessage = txtaMessage;
-        this.rootPane = rootPane;
-        this.sender = sender;
         this.file = file;
-        this.oos = oos;
+        this.userConnection = userConnection;
     }
 
     @Override
     public void run() {
         try {
-            AttachmentDTO attachmentDTO = new AttachmentDTO();
+            String sender = userConnection.getUsername();
             String message = "\n" + sender + ": " + txtaMessage.getText();
-            attachmentDTO.setMessage(message);
-            attachmentDTO.setFile(file);
+            AttachmentDTO attachmentDTO = new AttachmentDTO(message, file);
+            ObjectOutputStream oos = userConnection.getObjectOutputStream();
             oos.writeObject(attachmentDTO);
             oos.flush();
             if (txtaMessage.getText().equals("exit")) {
@@ -49,7 +41,7 @@ public class WritingThread extends Thread {
             }
             txtaMessage.setText("");
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+            JOptionPane.showMessageDialog(txtaMessage, ex.getMessage());
         }
     }
 }

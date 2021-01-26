@@ -5,9 +5,8 @@
  */
 package com.detai1;
 
-import com.detai1.tools.WritingThread;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
+import com.detai1.utils.UserConnection;
+import com.detai1.utils.WritingThread;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
@@ -19,11 +18,9 @@ import javax.swing.text.StyledDocument;
  */
 public class ClientForm extends javax.swing.JFrame {
 
-    private Socket client;
-    private String username;
-    private JFileChooser jfc;
-    private StyledDocument sd;
-    private ObjectOutputStream oos;
+    private UserConnection userConnection;
+    private JFileChooser jFileChooser;
+    private StyledDocument styledDocument;
 
     /**
      * Creates new form ClientForm
@@ -34,8 +31,8 @@ public class ClientForm extends javax.swing.JFrame {
     }
 
     private void formWhenInit() {
-        sd = txtpChatBox.getStyledDocument();
-        jfc = new JFileChooser();
+        styledDocument = txtpChatBox.getStyledDocument();
+        jFileChooser = new JFileChooser();
     }
 
     /**
@@ -135,11 +132,11 @@ public class ClientForm extends javax.swing.JFrame {
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
         // TODO add your handling code here:
         if (txtaMessage.getText() != null) {
-            Thread write = new WritingThread(client, txtaMessage, rootPane, username, jfc.getSelectedFile(), oos);
+            Thread write = new WritingThread(txtaMessage, jFileChooser.getSelectedFile(), userConnection);
             write.start();
-            jfc.cancelSelection();
+            jFileChooser.cancelSelection();
             try {
-                sd.insertString(sd.getLength(), "\nYou: " + txtaMessage.getText(), null);
+                styledDocument.insertString(styledDocument.getLength(), "\nYou: " + txtaMessage.getText(), null);
             } catch (BadLocationException ex) {
                 JOptionPane.showMessageDialog(rootPane, ex.getMessage());
             }
@@ -150,9 +147,9 @@ public class ClientForm extends javax.swing.JFrame {
 
     private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
         // TODO add your handling code here:
-        jfc.showOpenDialog(this);
-        if (jfc.getSelectedFile() != null) {
-            txtaMessage.setText(jfc.getSelectedFile().getName());
+        jFileChooser.showOpenDialog(this);
+        if (jFileChooser.getSelectedFile() != null) {
+            txtaMessage.setText(jFileChooser.getSelectedFile().getName());
         }
     }//GEN-LAST:event_btnFileActionPerformed
 
@@ -211,31 +208,19 @@ public class ClientForm extends javax.swing.JFrame {
     private javax.swing.JTextPane txtpChatBox;
     // End of variables declaration//GEN-END:variables
 
-    public Socket getClient() {
-        return client;
+    public UserConnection getUserConnection() {
+        return userConnection;
     }
 
-    public void setClient(Socket socket) {
-        client = socket;
+    public void setUserConnection(UserConnection userConnection) {
+        this.userConnection = userConnection;
     }
 
-    public String getUsername() {
-        return username;
+    public StyledDocument getStyledDocument() {
+        return styledDocument;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public StyledDocument getSd() {
-        return sd;
-    }
-
-    public ObjectOutputStream getOOS() {
-        return oos;
-    }
-
-    public void setObjectOutputStream(ObjectOutputStream oos) {
-        this.oos = oos;
+    public void setStyledDocument(StyledDocument styledDocument) {
+        this.styledDocument = styledDocument;
     }
 }
