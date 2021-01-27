@@ -100,15 +100,10 @@ public class ServerForm extends javax.swing.JFrame {
     }
 
     private void formWhenInit() {
-        try {
-            jFileChooser = new JFileChooser();
-            userConnections = new LinkedHashSet<>();
-            server = new ServerSocket(9999);
-            txtaMessage.setLineWrap(true);
-            txtaChatBox.setLineWrap(true);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
-        }
+        jFileChooser = new JFileChooser();
+        userConnections = new LinkedHashSet<>();
+        txtaMessage.setLineWrap(true);
+        txtaChatBox.setLineWrap(true);
     }
 
     /**
@@ -142,8 +137,11 @@ public class ServerForm extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel4.setText("Port");
 
+        txtPort.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        txtPort.setText("9999");
+
         btnListen.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        btnListen.setText("Listen");
+        btnListen.setText("Start");
         btnListen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnListenActionPerformed(evt);
@@ -162,6 +160,7 @@ public class ServerForm extends javax.swing.JFrame {
         });
 
         txtaMessage.setColumns(20);
+        txtaMessage.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         txtaMessage.setRows(5);
         jScrollPane3.setViewportView(txtaMessage);
 
@@ -172,7 +171,9 @@ public class ServerForm extends javax.swing.JFrame {
             }
         });
 
+        txtaChatBox.setEditable(false);
         txtaChatBox.setColumns(20);
+        txtaChatBox.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         txtaChatBox.setRows(5);
         jScrollPane2.setViewportView(txtaChatBox);
 
@@ -191,34 +192,27 @@ public class ServerForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jScrollPane2))
+                            .addComponent(jScrollPane2)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addGap(48, 48, 48)
-                                        .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(btnListen))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                        .addGap(6, 6, 6)
-                                        .addComponent(jLabel5)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(btnFile)
-                                                .addGap(333, 333, 333))
-                                            .addComponent(jScrollPane3))))))
+                                .addComponent(jLabel4)
+                                .addGap(48, 48, 48)
+                                .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnListen, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGap(12, 12, 12)
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnFile, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(txtUsersConn))
-                            .addComponent(btnSend)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtUsersConn)
+                            .addComponent(btnSend, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(246, 246, 246)
                         .addComponent(jLabel3)))
@@ -239,15 +233,14 @@ public class ServerForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtUsersConn, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSend)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabel5)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(btnFile)
-                .addGap(0, 11, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         pack();
@@ -255,7 +248,13 @@ public class ServerForm extends javax.swing.JFrame {
 
     private void btnListenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListenActionPerformed
         // TODO add your handling code here:
-        txtaChatBox.setText("server is listening");
+        try {
+            int port = Integer.parseInt(txtPort.getText());
+            server = new ServerSocket(port);
+            txtaChatBox.setText("server is listening");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        }
         startingServer();
     }//GEN-LAST:event_btnListenActionPerformed
 
@@ -347,17 +346,4 @@ public class ServerForm extends javax.swing.JFrame {
     private javax.swing.JTextArea txtaMessage;
     // End of variables declaration//GEN-END:variables
 
-    /**
-     * @return the server
-     */
-    public ServerSocket getServer() {
-        return server;
-    }
-
-    /**
-     * @param server the server to set
-     */
-    public void setServer(ServerSocket server) {
-        this.server = server;
-    }
 }

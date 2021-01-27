@@ -72,7 +72,7 @@ public class ReadingThread extends Thread {
                 }
             }
         } catch (IOException | ClassNotFoundException ex) {
-            JOptionPane.showMessageDialog(txtaChatBox, ex.getMessage());
+//            JOptionPane.showMessageDialog(txtaChatBox, ex.getMessage());
         }
     }
 

@@ -25,4 +25,6 @@ hs_err_pid*
 */target
 
 client/archive/*
+client!/archive/
 server/archive/*
+server!/archive
