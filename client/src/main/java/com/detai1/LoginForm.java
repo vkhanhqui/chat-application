@@ -173,16 +173,13 @@ public class LoginForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         boolean isLogged = false;
         try {
-            Socket socket = userConnection.getSocket();
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            ObjectOutputStream oos = userConnection.getObjectOutputStream();
             String attachment = txtUsername.getText() + " " + new String(txtPwd.getPassword());
             oos.writeUTF(attachment);
             oos.flush();
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            ObjectInputStream ois = userConnection.getObjectInputStream();
             isLogged = ois.readBoolean();
             if (isLogged == true) {
-                userConnection.setObjectInputStream(ois);
-                userConnection.setObjectOutputStream(oos);
                 userConnection.setUsername(txtUsername.getText());
                 this.setVisible(false);
                 ClientForm clientForm = new ClientForm();
@@ -206,6 +203,12 @@ public class LoginForm extends javax.swing.JFrame {
             Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
             if (socket.isConnected()) {
                 userConnection.setSocket(socket);
+                userConnection.setObjectOutputStream(
+                        new ObjectOutputStream(socket.getOutputStream())
+                );
+                userConnection.setObjectInputStream(
+                        new ObjectInputStream(socket.getInputStream())
+                );
                 formWhenConnected();
             } else {
                 JOptionPane.showMessageDialog(rootPane, "could not connect");
