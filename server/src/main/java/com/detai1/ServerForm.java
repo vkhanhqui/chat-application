@@ -5,6 +5,7 @@
  */
 package com.detai1;
 
+import com.detai1.utils.DbConnection;
 import com.detai1.utils.UserConnection;
 import com.detai1.utils.ReadingThread;
 import com.detai1.utils.WritingThread;
@@ -13,6 +14,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -52,22 +55,31 @@ public class ServerForm extends javax.swing.JFrame {
         try {
             ObjectInputStream ois = userConnection.getObjectInputStream();
             ObjectOutputStream oos = userConnection.getObjectOutputStream();
+            DbConnection.Open();
             do {
                 String get = ois.readUTF();
-                String username = get.split(" ")[0];
-                String pwd = get.split(" ")[1];
-                //username.equals("1") && 
-                if (pwd.equals("2")) {
-                    oos.writeBoolean(true);
-                    String status = "\n" + username + " is logging";
-                    txtaChatBox.append(status);
-                    userConnection.setUsername(username);
-                    userConnections.add(userConnection);
-                    oos.flush();
-                    break;
-                } else {
-                    oos.writeBoolean(false);
-                    oos.flush();
+                String usernameFromClient = get.split(" ")[0];
+                String pwdFromClient = get.split(" ")[1];
+                try {
+                    String sql = "select * from account where username=? and password=?";
+                    PreparedStatement ps = DbConnection.conn.prepareStatement(sql);
+                    ps.setString(1, usernameFromClient);
+                    ps.setString(2, pwdFromClient);
+                    if (ps.executeQuery().next()) {
+                        DbConnection.Close();
+                        oos.writeBoolean(true);
+                        String status = "\n" + usernameFromClient + " is logging";
+                        txtaChatBox.append(status);
+                        userConnection.setUsername(usernameFromClient);
+                        userConnections.add(userConnection);
+                        oos.flush();
+                        break;
+                    } else {
+                        oos.writeBoolean(false);
+                        oos.flush();
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(rootPane, ex.getMessage());
                 }
             } while (true);
             Thread read = new ReadingThread(txtaChatBox, userConnection,

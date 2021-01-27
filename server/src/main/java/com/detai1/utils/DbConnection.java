@@ -20,12 +20,13 @@ public class DbConnection {
     public static boolean Open() {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            String sql = "jdbc:sqlserver://KHANHQUI\\SQLEXPRESS:1433;databaseName=dvdlibrary;user=mylogin;password=mylogin";
+            String sql = "jdbc:sqlserver://KHANHQUI\\SQLEXPRESS:1433;databaseName=detai1;user=mylogin;password=mylogin";
             conn = DriverManager.getConnection(sql);
             System.out.println("connected");
             return true;
         } catch (SQLException | ClassNotFoundException ex) {
             System.err.println(ex.getMessage());
+            ex.printStackTrace();
             return false;
         }
     }
@@ -37,6 +38,7 @@ public class DbConnection {
             return true;
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
+            ex.printStackTrace();
             return false;
         }
     }
