@@ -1,0 +1,4 @@
+alert if client exit
+connect database instead
+jtextpane can auto scroll to end
+read image file will display on jtextpane

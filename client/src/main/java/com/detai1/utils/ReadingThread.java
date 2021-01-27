@@ -13,9 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import javax.swing.JOptionPane;
-import javax.swing.JRootPane;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.StyledDocument;
+import javax.swing.JTextArea;
 
 /**
  *
@@ -23,13 +21,11 @@ import javax.swing.text.StyledDocument;
  */
 public class ReadingThread extends Thread {
 
-    private StyledDocument styledDocument;
-    private JRootPane rootPane;
     private UserConnection userConnection;
+    private JTextArea txtaChatBox;
 
-    public ReadingThread(StyledDocument styledDocument, JRootPane rootPane, UserConnection userConnection) {
-        this.styledDocument = styledDocument;
-        this.rootPane = rootPane;
+    public ReadingThread(JTextArea txtaChatBox, UserConnection userConnection) {
+        this.txtaChatBox = txtaChatBox;
         this.userConnection = userConnection;
     }
 
@@ -39,7 +35,10 @@ public class ReadingThread extends Thread {
             while (true) {
                 ObjectInputStream ois = userConnection.getObjectInputStream();
                 AttachmentDTO attachmentDTO = (AttachmentDTO) ois.readObject();
-                styledDocument.insertString(styledDocument.getLength(), attachmentDTO.getMessage(), null);
+                txtaChatBox.append(attachmentDTO.getMessage());
+                txtaChatBox.selectAll();
+                int bottom = txtaChatBox.getSelectionEnd();;
+                txtaChatBox.select(bottom, bottom);
                 if (attachmentDTO.getFile() != null) {
                     File receive = attachmentDTO.getFile();
                     Path rootLocation = Paths.get("archive");
@@ -50,8 +49,8 @@ public class ReadingThread extends Thread {
                             StandardCopyOption.REPLACE_EXISTING);
                 }
             }
-        } catch (IOException | ClassNotFoundException | BadLocationException ex) {
-            JOptionPane.showMessageDialog(rootPane, ex.getMessage());
+        } catch (IOException | ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(txtaChatBox, ex.getMessage());
             ex.printStackTrace();
         }
     }

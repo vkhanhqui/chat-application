@@ -188,8 +188,7 @@ public class LoginForm extends javax.swing.JFrame {
                 ClientForm clientForm = new ClientForm();
                 clientForm.setVisible(true);
                 clientForm.setUserConnection(userConnection);
-                Thread read = new ReadingThread(clientForm.getStyledDocument(), rootPane,
-                        userConnection);
+                Thread read = new ReadingThread(clientForm.getTxtaChatBox(), userConnection);
                 read.start();
             } else {
                 JOptionPane.showMessageDialog(rootPane, "tai khoan hoac mat khau sai");
