@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashSet;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  *
@@ -26,12 +27,14 @@ public class ReadingThread extends Thread {
     private JTextArea txtaChatBox;
     private UserConnection userConnection;
     private LinkedHashSet<UserConnection> userConnections;
+    private JTextField txtUsersConn;
 
     public ReadingThread(JTextArea txtaChatBox, UserConnection userConnection,
-            LinkedHashSet<UserConnection> userConnections) {
+            LinkedHashSet<UserConnection> userConnections, JTextField txtUsersConn) {
         this.txtaChatBox = txtaChatBox;
         this.userConnection = userConnection;
         this.userConnections = userConnections;
+        this.txtUsersConn = txtUsersConn;
     }
 
     @Override
@@ -40,24 +43,32 @@ public class ReadingThread extends Thread {
             Socket socket = userConnection.getSocket();
             ObjectInputStream ois = userConnection.getObjectInputStream();
             while (true) {
+                txtUsersConn.setText("0" + userConnections.size());
                 AttachmentDTO attachmentDTO = (AttachmentDTO) ois.readObject();
-                if (attachmentDTO.getMessage().contains("exit")) {
+                if (attachmentDTO.getMessage().equals("exit")) {
+                    String alert = "\nUser " + userConnection.getUsername()
+                            + " exited";
+                    txtaChatBox.append(alert);
                     userConnections.remove(userConnection);
+                    txtUsersConn.setText("0" + userConnections.size());
                     ois.close();
                     socket.close();
-                }
-                txtaChatBox.append(attachmentDTO.getMessage());
-                txtaChatBox.selectAll();
-                int bottom = txtaChatBox.getSelectionEnd();;
-                txtaChatBox.select(bottom, bottom);
-                if (attachmentDTO.getFile() != null) {
-                    File receive = attachmentDTO.getFile();
-                    Path rootLocation = Paths.get("archive");
-                    Files.copy(receive.toPath(),
-                            rootLocation.resolve(Paths.get(receive.getName()))
-                                    .normalize()
-                                    .toAbsolutePath(),
-                            StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    String customReceivedMessage = "\n" + userConnection.getUsername()
+                            + ": " + attachmentDTO.getMessage();
+                    txtaChatBox.append(customReceivedMessage);
+                    txtaChatBox.selectAll();
+                    int bottom = txtaChatBox.getSelectionEnd();;
+                    txtaChatBox.select(bottom, bottom);
+                    if (attachmentDTO.getFile() != null) {
+                        File receive = attachmentDTO.getFile();
+                        Path rootLocation = Paths.get("archive");
+                        Files.copy(receive.toPath(),
+                                rootLocation.resolve(Paths.get(receive.getName()))
+                                        .normalize()
+                                        .toAbsolutePath(),
+                                StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
             }
         } catch (IOException | ClassNotFoundException ex) {

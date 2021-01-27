@@ -30,9 +30,7 @@ public class WritingThread extends Thread {
     @Override
     public void run() {
         try {
-            String sender = userConnection.getUsername();
-            String message = "\n" + sender + ": " + txtaMessage.getText();
-            AttachmentDTO attachmentDTO = new AttachmentDTO(message, file);
+            AttachmentDTO attachmentDTO = new AttachmentDTO(txtaMessage.getText(), file);
             ObjectOutputStream oos = userConnection.getObjectOutputStream();
             oos.writeObject(attachmentDTO);
             oos.flush();
